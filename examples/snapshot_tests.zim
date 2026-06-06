@@ -1,0 +1,16 @@
+# =========================================================
+# EXEMPLO 10: Snapshot Testing
+# =========================================================
+
+suite SnapshotTests:
+    test "Order entity snapshot":
+        snapshot Order.to_dict() as "order_snapshot"
+    
+    test "Customer entity snapshot":
+        snapshot Customer.to_dict() as "customer_snapshot"
+    
+    test "Payment entity snapshot":
+        snapshot Payment.to_dict() as "payment_snapshot"
+    
+    test "Fulfillment entity snapshot":
+        snapshot Fulfillment.to_dict() as "fulfillment_snapshot"

@@ -1,0 +1,29 @@
+# =========================================================
+# EXEMPLO 3: Teste de Propagação
+# =========================================================
+
+suite PropagationTests:
+    test "Status cancellation propagates":
+        simulate
+        
+        mock Order:
+            when status == "cancelled"
+                then_causes Payment.status == "cancelled"
+                then_causes Fulfillment.status == "cancelled"
+        
+        causes Order.status == "cancelled" causes Payment.status == "cancelled"
+        causes Order.status == "cancelled" causes Fulfillment.status == "cancelled"
+        
+        assert propagation Order.status.cancelled to [Payment, Fulfillment]
+    
+    test "Customer ban propagates to orders":
+        simulate
+        
+        mock Customer:
+            when status == "banned"
+                then_causes Order.status == "cancelled"
+        
+        causes Customer.status == "banned" causes Order.status == "cancelled"
+        
+        assert propagation Customer.status.banned to [Order]
+        within 5s

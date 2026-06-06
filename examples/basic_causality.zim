@@ -1,0 +1,31 @@
+# =========================================================
+# EXEMPLO 1: Teste de Causalidade Básico
+# =========================================================
+
+suite BasicCausality:
+    test "Customer active causes order creation":
+        simulate
+        
+        given Customer.active == true
+        causes Customer.active causes Order.created
+        within 5s
+        
+        assert Order.customer_id == customer.id
+    
+    test "Order confirmed causes payment processing":
+        simulate
+        
+        causes Order.confirmed causes Payment.processed
+        within 3s
+        
+        assert Payment.order_id == order.id
+        assert Payment.status == "pending"
+    
+    test "Payment confirmed causes fulfillment start":
+        simulate
+        
+        causes Payment.confirmed causes Fulfillment.started
+        within 10s
+        
+        assert Fulfillment.order_id == payment.order_id
+        assert Fulfillment.status == "processing"

@@ -1,0 +1,38 @@
+# =========================================================
+# EXEMPLO 4: Teste com Mocks
+# =========================================================
+
+suite MockTests:
+    test "Payment with mocked gateway":
+        simulate
+        
+        mock PaymentGateway:
+            when called_with(amount: > 0)
+                then_causes Payment.processed
+                then_returns {status: "success", transaction_id: "txn_123"}
+        
+        causes PaymentGateway.process(amount: 100) causes Payment.processed
+        assert Payment.status == "success"
+        assert Payment.transaction_id == "txn_123"
+    
+    test "Database with mocked capability":
+        simulate
+        
+        mock DatabaseCapability:
+            when called_with(query: "SELECT * FROM orders")
+                then_causes Order.loaded
+                then_returns mock_orders
+        
+        causes DatabaseCapability.query(query: "SELECT * FROM orders") causes Order.loaded
+        assert Order.count > 0
+    
+    test "Auth with mocked login":
+        simulate
+        
+        mock auth.login:
+            when called_with(email: "test@example.com", password: "password")
+                then_causes Customer.authenticated
+                then_returns {token: "mock_token", customer_id: 123}
+        
+        causes auth.login(email: "test@example.com", password: "password") causes Customer.authenticated
+        assert Customer.token == "mock_token"

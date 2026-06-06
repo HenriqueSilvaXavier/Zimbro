@@ -1,0 +1,37 @@
+# =========================================================
+# EXEMPLO 11: Operadores Prevents, Requires, Precedes
+# =========================================================
+
+suite PreventsRequiresPrecedes:
+    test "Prevents operator":
+        simulate
+        
+        prevents Customer.banned prevents Order.created
+        prevents Order.cancelled prevents Payment.processed
+        prevents Payment.failed prevents Fulfillment.started
+        
+        assert Customer.status != "banned"
+        assert Order.status != "cancelled"
+        assert Payment.status != "failed"
+    
+    test "Requires operator":
+        simulate
+        
+        requires Payment.processed requires Order.confirmed
+        requires Fulfillment.started requires Payment.confirmed
+        requires Invoice.generated requires Fulfillment.complete
+        
+        assert Order.status == "confirmed"
+        assert Payment.status == "processed"
+        assert Fulfillment.status == "complete"
+    
+    test "Precedes operator":
+        simulate
+        
+        precedes Order.confirmed precedes Payment.processed
+        precedes Payment.processed precedes Fulfillment.started
+        precedes Fulfillment.shipped precedes Invoice.generated
+        
+        assert Order.status == "confirmed"
+        assert Payment.status == "processed"
+        assert Fulfillment.status == "shipped"

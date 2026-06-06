@@ -1,0 +1,28 @@
+# =========================================================
+# EXEMPLO 8: Modos de Execução
+# =========================================================
+
+suite ExecutionModes:
+    test "Simulate mode":
+        simulate
+        
+        causes Order.created causes Payment.processed
+        within 5s
+        
+        assert Order.status == "pending"
+    
+    test "Replay mode":
+        replay from "order_creation_events.json"
+        
+        causes Order.created causes Payment.processed
+        
+        assert Order.status == "pending"
+        assert Payment.status == "pending"
+    
+    test "Continuous mode":
+        continuous
+        
+        causes Order.created causes Payment.processed
+        always
+        
+        assert Order.status == "pending"

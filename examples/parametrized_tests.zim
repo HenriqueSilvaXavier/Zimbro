@@ -1,0 +1,28 @@
+# =========================================================
+# EXEMPLO 6: Testes Parametrizados
+# =========================================================
+
+suite ParametrizedTests:
+    parametrize "Status transitions":
+        parameters: [from_status, to_status]
+        cases: [
+            {from_status: "pending", to_status: "confirmed"},
+            {from_status: "confirmed", to_status: "processing"},
+            {from_status: "processing", to_status: "shipped"},
+            {from_status: "shipped", to_status: "delivered"},
+        ]
+        
+        causes Order.status == from_status causes Order.status == to_status
+        within 2s
+    
+    parametrize "Payment amounts":
+        parameters: [amount, expected_status]
+        cases: [
+            {amount: 0, expected_status: "failed"},
+            {amount: -10, expected_status: "failed"},
+            {amount: 10, expected_status: "pending"},
+            {amount: 1000, expected_status: "pending"},
+        ]
+        
+        causes Payment.process(amount: amount) causes Payment.status == expected_status
+        within 1s

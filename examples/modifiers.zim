@@ -1,0 +1,47 @@
+# =========================================================
+# EXEMPLO 9: Modificadores Causais
+# =========================================================
+
+suite CausalModifiers:
+    test "Within modifier":
+        simulate
+        
+        causes Order.created causes Payment.processed
+        within 5s
+        
+        assert Payment.status == "pending"
+    
+    test "Always modifier":
+        simulate
+        
+        causes Customer.active causes Order.created
+        always
+        
+        assert Order.customer_id == customer.id
+    
+    test "Eventually modifier":
+        simulate
+        
+        causes Payment.confirmed causes Fulfillment.started
+        eventually 10s
+        
+        assert Fulfillment.status == "processing"
+    
+    test "Given modifier":
+        simulate
+        
+        causes Order.created causes Payment.processed
+        given Customer.active == true
+        within 5s
+        
+        assert Payment.status == "pending"
+    
+    test "Combined modifiers":
+        simulate
+        
+        causes Payment.confirmed causes Fulfillment.started
+        given Order.status == "confirmed"
+        within 10s
+        eventually 15s
+        
+        assert Fulfillment.status == "processing"

@@ -1,0 +1,28 @@
+# =========================================================
+# EXEMPLO 2: Teste de Invariantes
+# =========================================================
+
+suite InvariantTests:
+    test "No payment without order":
+        simulate
+        
+        never Payment.created before Order.confirmed
+        assert invariant NoPaymentWithoutOrder holds
+    
+    test "No fulfillment before payment":
+        simulate
+        
+        never Fulfillment.started before Payment.confirmed
+        assert invariant NoFulfillmentBeforePayment holds
+    
+    test "Order total must be positive":
+        simulate
+        
+        always Order.total > 0
+        assert invariant ValidOrderTotal holds
+    
+    test "Product stock never negative":
+        simulate
+        
+        never Product.stock < 0
+        assert invariant PositiveStock holds

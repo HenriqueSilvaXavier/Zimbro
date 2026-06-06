@@ -1,0 +1,50 @@
+# =========================================================
+# EXEMPLO 7: Suite Completa com Hooks
+# =========================================================
+
+suite CompleteOrderFlow:
+    before:
+        mock DatabaseCapability:
+            then_returns mock_db
+        mock PaymentGateway:
+            then_returns {status: "success"}
+    
+    after:
+        clear_mocks()
+        clear_causal_graph()
+    
+    beforeEach:
+        reset_entity_states()
+        create_test_customer()
+    
+    afterEach:
+        cleanup_test_data()
+    
+    test "Order creation flow":
+        simulate
+        
+        causes Customer.active causes Order.created
+        causes Order.created causes Payment.processed
+        causes Payment.processed causes Fulfillment.started
+        
+        assert Order.status == "pending"
+        assert Payment.status == "pending"
+        assert Fulfillment.status == "pending"
+    
+    test "Order cancellation flow":
+        simulate
+        
+        prevents Order.cancelled prevents Payment.processed
+        causes Order.cancelled causes Payment.refunded
+        
+        assert Order.status == "cancelled"
+        assert Payment.status == "refunded"
+    
+    test "Order fulfillment flow":
+        simulate
+        
+        causes Payment.confirmed causes Fulfillment.started
+        causes Fulfillment.shipped causes Invoice.generated
+        
+        assert Fulfillment.status == "shipped"
+        assert Invoice.status == "generated"

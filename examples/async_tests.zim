@@ -1,0 +1,38 @@
+# =========================================================
+# EXEMPLO 5: Testes Assíncronos
+# =========================================================
+
+suite AsyncTests:
+    async test "Async order processing":
+        simulate
+        
+        await Customer.create(email: "test@example.com")
+        await Order.create(customer_id: customer.id, total: 100)
+        
+        causes Order.created causes Payment.processed
+        eventually 10s
+        
+        assert Order.status == "pending"
+        assert Payment.status == "pending"
+    
+    async test "Async payment processing":
+        simulate
+        
+        await Order.create(customer_id: 1, total: 100)
+        await Payment.process(order_id: order.id, amount: 100)
+        
+        causes Payment.processed causes Fulfillment.started
+        eventually 15s
+        
+        assert Payment.status == "confirmed"
+        assert Fulfillment.status == "processing"
+    
+    async test "Async fulfillment with retry":
+        simulate
+        
+        await Payment.create(order_id: 1, amount: 100, status: "confirmed")
+        
+        causes Payment.confirmed causes Fulfillment.started
+        eventually 20s
+        
+        assert Fulfillment.status == "shipped"
