@@ -1,26 +1,131 @@
-# Zimbro — Biblioteca Oficial de Testes do Absinto
+# Zimbro — Biblioteca Geral de Testes Unitários
 
-Zimbro é a biblioteca oficial de testes do Absinto. Ela testa relações causais, estados de entidades, invariantes e propagação. Não testa funções nem implementação.
+Zimbro é uma biblioteca geral de testes unitários para todos os projetos, similar ao Jest, JUnit e Pytest. Ela fornece funcionalidades completas de testes unitários incluindo testes causais para o Absinto.
 
 ## Filosofia
 
-Zimbro segue a filosofia do Absinto: o programador declara intenção e comportamento, não implementação.
+Zimbro oferece dois modos de teste:
 
+### Modo Geral (Jest/JUnit/Pytest style)
+- **Testes unitários tradicionais**: Testa funções, classes e módulos
+- **Assertions padrão**: assert_equal, assert_true, assert_false, etc.
+- **Mocks tradicionais**: Mock de funções e objetos
+- **Setup/teardown**: beforeAll, afterAll, beforeEach, afterEach
+- **Testes parametrizados**: Roda o mesmo teste com diferentes inputs
+- **Testes assíncronos**: Suporte a async/await
+- **Snapshot testing**: Verifica estrutura de dados
+- **Coverage reporting**: Integração com coverage
+- **Watch mode**: Reexecuta testes quando arquivos mudam
+- **Execução paralela**: Roda testes em paralelo
+
+### Modo Causal (Absinto style)
 - **Testa relações causais**: "Does this action cause that effect?"
 - **Testa estados de entidades**: "Is the entity in the expected state?"
 - **Testa invariantes**: "Does this invariant hold?"
 - **Testa propagação**: "Does causal propagation work correctly?"
 
-**NÃO testa**:
+**NÃO testa** (no modo causal):
 - Funções
 - Implementação interna
 - Detalhes de código
 
-Um teste que quebra por refatoração interna mas comportamento correto é um teste mal escrito em Zimbro.
+Um teste que quebra por refatoração interna mas comportamento correto é um teste mal escrito no modo causal.
 
 ## Sintaxe
 
-### Teste Básico
+### Modo Geral - Testes Unitários Tradicionais
+
+#### Teste Básico
+
+```zim
+suite MathOperations:
+    test "Addition works correctly":
+        result = add(2, 3)
+        assert_equal(result, 5)
+
+    test "Subtraction works correctly":
+        result = subtract(10, 4)
+        assert_equal(result, 6)
+```
+
+#### Assertions
+
+```zim
+suite AssertionTests:
+    test "Equality assertions":
+        assert_equal(1 + 1, 2)
+        assert_not_equal(1 + 1, 3)
+
+    test "Boolean assertions":
+        assert_true(5 > 3)
+        assert_false(5 < 3)
+
+    test "Exception assertions":
+        assert_raises(ValueError, lambda: int("invalid"))
+```
+
+#### Setup/Teardown
+
+```zim
+suite DatabaseTests:
+    beforeAll:
+        setup_database()
+
+    afterAll:
+        cleanup_database()
+
+    beforeEach:
+        clear_tables()
+
+    afterEach:
+        rollback_transaction()
+
+    test "User creation":
+        user = create_user("test@example.com")
+        assert_equal(user.email, "test@example.com")
+```
+
+#### Testes Parametrizados
+
+```zim
+suite ParametrizedTests:
+    parametrize "Addition":
+        parameters: [a, b, expected]
+        cases: [
+            {a: 1, b: 2, expected: 3},
+            {a: 5, b: 10, expected: 15},
+            {a: -1, b: 1, expected: 0},
+        ]
+        
+        result = add(a, b)
+        assert_equal(result, expected)
+```
+
+#### Testes Assíncronos
+
+```zim
+suite AsyncTests:
+    async test "Async operation":
+        result = await fetch_data()
+        assert_equal(result.status, "success")
+```
+
+#### Mocks Tradicionais
+
+```zim
+suite MockTests:
+    test "Function with mock":
+        mock api_client.get:
+            when_called_with(url="/users/1")
+            then_returns({"id": 1, "name": "Test"})
+        
+        user = get_user(1)
+        assert_equal(user.name, "Test")
+```
+
+### Modo Causal - Testes do Absinto
+
+#### Teste Básico
 
 ```zim
 suite OrderProcessing:
@@ -261,7 +366,7 @@ zimbro run --verbose
 # Timeout customizado
 zimbro run --timeout 10s
 
-# Modo de execução
+# Modo de execução (para testes causais)
 zimbro run --mode simulate
 zimbro run --mode replay
 zimbro run --mode continuous

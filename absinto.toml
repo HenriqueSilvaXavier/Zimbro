@@ -1,0 +1,12 @@
+[package]
+name = "zimbro"
+version = "1.0.0"
+description = "Biblioteca de testes para Absinto"
+license = "MIT"
+repository = "https://github.com/henrique/zimbro"
+
+[author]
+name = "Henrique Silva"
+
+[exports]
+python = "cli.py"
